@@ -4,6 +4,7 @@ import random
 
 from .player import Player
 from casino.types import GameContext
+from casino.stats import GameStats, display_stats
 from casino.utils import clear_screen, cprint, cinput, display_topbar
 from casino.cards import UnoDeck, UnoCard
 
@@ -66,6 +67,7 @@ def print_hand(cards) :
         cprint(hand_string)
 
 def play_uno(ctx: GameContext) -> None:
+    # game_over = 0
     unodeck_ = UnoDeck()
     current_deck = unodeck_.cards 
     players: list[Player] = []
@@ -115,6 +117,8 @@ def play_uno(ctx: GameContext) -> None:
 
         if (answer == "d" or answer == "draw") :
             new_card = i.draw(current_deck)
+            i.cards_drawn += 1
+            
             cprint("You drew \n" + str(new_card) + " from the pile.")
         elif (answer == "p" or answer == "play") :
             VALID_COLORS = ["red", "green", "blue", "yellow"]
@@ -142,11 +146,17 @@ def play_uno(ctx: GameContext) -> None:
                 if valid_card:
                     if len(played_card_words) == 1:
                         if played_card_words[0] == "+4":
+                            players[currentPlayerIndex].special_cards_played += 1
+                            
                             new_card = UnoCard("wild","wild_draw_4")
                         else:
+                            players[currentPlayerIndex].special_cards_played += 1
+                            
                             new_card = UnoCard("wild","wild")
                     else: 
                         new_card = UnoCard(played_card_words[0],played_card_words[1])
+                        players[currentPlayerIndex].reg_cards_played += 1
+                        
 
                     if not (new_card in i.playable_cards(current_card)):
                         valid_card = False
@@ -162,7 +172,21 @@ def play_uno(ctx: GameContext) -> None:
             if len(i.hand) == 0:
                 continueGame = False
                 display_uno_topbar(ctx)
-                cprint(f"{i.name} is the winner!")
+                cprint(f"{i.name} is the winner!\n")
+
+                #DRAW STATS HERE
+                # Define your column widths to fit your border size
+                # Print code similar to stats.py 
+                label_width = 24
+                value_width = 5
+                border = "_" * (label_width + value_width + 5)
+
+                cprint(f"{border}\n")
+                cprint(f"| {'Cards Drawn:':<{label_width}} {i.cards_drawn:>{value_width}} |\n")
+                cprint(f"| {'Special Cards Played:':<{label_width}} {i.special_cards_played:>{value_width}} |\n")
+                cprint(f"| {'Regular Cards Played:':<{label_width}} {i.reg_cards_played:>{value_width}} |\n")
+                cprint(f"{border}\n")
+
                 cinput("Press enter when ready to exit")
                 break
             match new_card.rank:
@@ -177,6 +201,8 @@ def play_uno(ctx: GameContext) -> None:
                     currentPlayerIndex = (currentPlayerIndex + direction) % len(players)
                     players[currentPlayerIndex].draw(current_deck)
                     players[currentPlayerIndex].draw(current_deck)
+                    
+                    players[currentPlayerIndex].cards_drawn += 4
                 case "wild":
                     new_color = cinput("Choose a color for the wild card (green, yellow, red, or blue)!").lower()
                     while (new_color != "green" and  
@@ -198,6 +224,8 @@ def play_uno(ctx: GameContext) -> None:
                     players[currentPlayerIndex].draw(current_deck)
                     players[currentPlayerIndex].draw(current_deck)
                     players[currentPlayerIndex].draw(current_deck)
+                    
+                    players[currentPlayerIndex].cards_drawn += 4
             discard.append(new_card)
         cinput("Press enter when ready to switch to the next player")
         display_uno_topbar(ctx)

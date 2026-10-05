@@ -7,6 +7,9 @@ class Player:
         self.id = id
         self.name = name.upper()
         self.hand = []
+        self.cards_drawn = 0
+        self.reg_cards_played = 0
+        self.special_cards_played = 0
     
     def draw(self, deck: list[UnoCard]) -> UnoCard:
         c = random.choice(deck)
