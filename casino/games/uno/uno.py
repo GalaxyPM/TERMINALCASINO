@@ -202,7 +202,7 @@ def play_uno(ctx: GameContext) -> None:
                     players[currentPlayerIndex].draw(current_deck)
                     players[currentPlayerIndex].draw(current_deck)
                     
-                    players[currentPlayerIndex].cards_drawn += 4
+                    players[currentPlayerIndex].cards_drawn += 2
                 case "wild":
                     new_color = cinput("Choose a color for the wild card (green, yellow, red, or blue)!").lower()
                     while (new_color != "green" and  
